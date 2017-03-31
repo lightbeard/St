@@ -1,0 +1,16 @@
+{
+  "name": "stocks",
+  "version": "1.0.0",
+  "description": "fortune 500 data",
+  "main": "get-fortune-data.js",
+  "dependencies": {
+    "express": "^4.14.0",
+    "sync-request": "^4.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lightbeard",
+  "license": "ISC"
+}
