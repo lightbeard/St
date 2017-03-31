@@ -127,7 +127,7 @@ console.log('%%%%%%%%%%%% Yahoo Missing: '+symbol+", "+title+", "+year+", "+i);
 var portfolio = [];
 var salary = 60000;
 
-var year = 1996;
+var year = 1997;
 
 var tmp = [];
 var complete = 0;
@@ -169,7 +169,7 @@ for(var i=0; i<tmp.length; i++) {
       setTimeout(function() {
         earningFactor(stock.s, year, stock.t, index, function(factor) {
             if(factor) symbols[Number(stock.r)-1] = {symbol:stock.s, factor:factor};
-            else symbols[Number(stock.r)-1] = {symbol:'DEFUNCT', factor:1.0};
+            else symbols[Number(stock.r)-1] = {symbol:'DEFUNCT', factor:1.0}; // old?
             total += Number(stock.r);
 //console.log(symbols.length);
 console.log('########## TOTAL:', total);
@@ -182,8 +182,3 @@ console.log('########## TOTAL:', total);
 delete tmp;
 
 while(total < 99958738) require('deasync').runLoopOnce();
-
-console.log("################", year);
-for(var i=0; i<500; i++) {
-  if(symbols[i]) console.log((i+1)+','+symbols[i].symbol+','+symbols[i].factor);
-}
