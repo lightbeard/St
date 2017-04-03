@@ -70,7 +70,10 @@ if symbol.replace('.','').isalpha() and len(sys.argv) > 5:
     ratios = json.load(f)
     f.close()
 
-    ratios[symbol] = {JSON_YEAR: ratio}
+    if ratios[symbol] is None:
+        ratios[symbol] = {JSON_YEAR: ratio}
+    else:
+        ratios[symbol][JSON_YEAR] = ratio
 
     f = open('ratio-data.json', 'w')
 

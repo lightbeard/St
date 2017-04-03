@@ -32,6 +32,7 @@ var smap = {
   'ITT Corporation':'ITT',
   'Guardian Life Insurance Co. of America':PRIVATE,
   'Associated Insurance Companies,Inc.':'ANTM',
+  'Anthem Insurance Companies,Inc.':'ANTM',
   'John Hancock Mutual Life Insurance Company':PRIVATE,
   'ARAMARK Corporation':'ARMK',
   'Thrifty Payless Holdings, Inc.':PRIVATE,
@@ -56,7 +57,14 @@ var smap = {
   'Federal National Mortgage Association':PRIVATE,
   'Federal Home Loan Mortgage Corporation':PRIVATE,
   'Metropolitan Life Insurance Co.':PRIVATE,
-  'The Stop & Shop Companies, Inc.':PRIVATE
+  'The Stop & Shop Companies, Inc.':PRIVATE,
+  'State Farm Insurance Companies':PRIVATE,
+  'The Principal Financial Group':'PFG',
+  'Borden, Inc.':PRIVATE,
+  'Food 4 Less Holdings':PRIVATE,
+  'American Family Insurance Group':PRIVATE,
+  'General American Life Insurance':PRIVATE,
+  'Lutheran Brotherhood':PRIVATE  
 };
 
 // determine earnings ratio for stock in given year, e.g. 10% return is 1.1
