@@ -64,7 +64,8 @@ var smap = {
   'Food 4 Less Holdings':PRIVATE,
   'American Family Insurance Group':PRIVATE,
   'General American Life Insurance':PRIVATE,
-  'Lutheran Brotherhood':PRIVATE  
+  'Lutheran Brotherhood':PRIVATE,
+  'Fannie Mae':PRIVATE
 };
 
 // determine earnings ratio for stock in given year, e.g. 10% return is 1.1
