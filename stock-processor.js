@@ -65,7 +65,9 @@ var smap = {
   'American Family Insurance Group':PRIVATE,
   'General American Life Insurance':PRIVATE,
   'Lutheran Brotherhood':PRIVATE,
-  'Fannie Mae':PRIVATE
+  'Fannie Mae':PRIVATE,
+  'NYNEX Corporation':PRIVATE,
+  'Federal Home Loan Mortgage Corp.':PRIVATE
 };
 
 // determine earnings ratio for stock in given year, e.g. 10% return is 1.1
