@@ -109,7 +109,7 @@ function intrinio(symbol, year, title, i, callback) {
       const ratio = Number(y2price) / Number(y1price);
       if(!rdata[symbol]) rdata[symbol] = {};
       rdata[symbol][year] = ratio;
-      fs.writeFileSync('ratio-data.json', rdata);
+      fs.writeFileSync('ratio-data.json', JSON.stringify(rdata));
       console.log('added to local cache:', symbol, year, ratio);
       callback(ratio);
 
@@ -185,7 +185,7 @@ function earningFactor(symbol, year, title, i, callback) {
         var ratio = quotes[quotes.length - 1].open / quotes[0].open;
         if(!rdata[symbol]) rdata[symbol] = {};
         rdata[symbol][year] = ratio;
-        fs.writeFileSync('ratio-data.json', rdata);
+        fs.writeFileSync('ratio-data.json', JSON.stringify(rdata));
         console.log('added to local cache:', symbol, year, ratio);
         callback(ratio);
       }
