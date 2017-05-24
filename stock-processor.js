@@ -3,8 +3,7 @@ const opn = require('opn');
 
 const sleep = require('system-sleep');
 
-const Client = require('node-rest-client').Client;
-const rest = new Client({ user: "609049632e3b5c37054c4e2639fd9bc3", password: "23b52233a64c03cb646ed1c8151a411f" });
+const request = require('request');
 
 const yahooFinance = require('yahoo-finance');
 const assert = require('assert');
@@ -75,7 +74,17 @@ var smap = {
 };
 
 function intrinio(symbol, year, title, i, callback) {
-  client.get("https://api.intrinio.com/historical_data?identifier=" + symbol.toUpperCase() + "&item=adj_close_price&start_date=" + year + "-06-01&end_date=" + (year + 1) + "-07-01&frequency=quarterly", function (payload, response) {
+
+  var url = "http://api.intrinio.com/historical_data?identifier=" + symbol.toUpperCase() + "&item=adj_close_price&start_date=" + year + "-06-01&end_date=" + (year + 1) + "-07-01&frequency=quarterly";
+
+  console.log('intinio api:', url);
+
+  request.get('http://some.server.com/', function(error, response, body) {
+
+    assert(response && response.statusCode === 200);
+
+    const payload = JSON.parse(body);
+
     if(payload.data.length > 0) {
 
       const re1 = new RegExp( year + '-05|' + year + '-06|' + year + '-07' );
@@ -93,7 +102,11 @@ function intrinio(symbol, year, title, i, callback) {
 
       callback( Number(y2price) / Number(y1price) );
 
-    } else {
+  }).auth('609049632e3b5c37054c4e2639fd9bc3', '23b52233a64c03cb646ed1c8151a411f', false);
+
+
+
+  /*  } else {
       console.log('%%%%%%%%%%%% Intrinio Missing: '+symbol+", "+title+", "+year+", "+i);
       var familiar = false;
       var words = title.split(" ");
@@ -122,8 +135,8 @@ function intrinio(symbol, year, title, i, callback) {
       }
 
       OFF=true;
-    }
-  });
+    } */
+
 }
 
 // determine earnings ratio for stock in given year, e.g. 10% return is 1.1
