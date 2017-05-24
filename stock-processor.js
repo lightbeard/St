@@ -1,15 +1,19 @@
-var fs = require("fs");
-var opn = require('opn');
+const fs = require("fs");
+const opn = require('opn');
 
-var sleep = require('system-sleep');
+const sleep = require('system-sleep');
 
-var yahooFinance = require('yahoo-finance');
-var assert = require('assert');
+const Client = require('node-rest-client').Client;
+const rest = new Client({ user: "609049632e3b5c37054c4e2639fd9bc3", password: "23b52233a64c03cb646ed1c8151a411f" });
+
+const yahooFinance = require('yahoo-finance');
+const assert = require('assert');
+
+const year = 1997;
+
+const PRIVATE = '_PRIVATE';
 
 var rdata = JSON.parse(fs.readFileSync('ratio-data.json'));
-
-var PRIVATE = '_PRIVATE';
-
 var OFF = false;
 
 var smap = {
@@ -70,6 +74,58 @@ var smap = {
   'Federal Home Loan Mortgage Corp.':PRIVATE
 };
 
+function intrinio(symbol, year, title, i, callback) {
+  client.get("https://api.intrinio.com/historical_data?identifier=" + symbol.toUpperCase() + "&item=adj_close_price&start_date=" + year + "-06-01&end_date=" + (year + 1) + "-07-01&frequency=quarterly", function (payload, response) {
+    if(payload.data.length > 0) {
+
+      const re1 = new RegExp( year + '-05|' + year + '-06|' + year + '-07' );
+      const re2 = new RegExp( (year+1) + '-05|' + (year+1) + '-06|' + (year+1) + '-07' );
+
+      var y1price, y2price;
+
+      for(var qindex=0; qindex<paylaod.data.length; qindex++) {
+        var item = payload.data[qindex];
+        if(re1.test(item.value)) y1price = item.value;
+        if(re2.test(item.value)) y2price = item.value;
+      }
+
+      assert(y1price && y2price);
+
+      callback( Number(y2price) / Number(y1price) );
+
+    } else {
+      console.log('%%%%%%%%%%%% Intrinio Missing: '+symbol+", "+title+", "+year+", "+i);
+      var familiar = false;
+      var words = title.split(" ");
+      if(words.length > 1) words[words.length-2] = words[words.length-2].replace(",","");
+      var last = words[words.length-1];
+      if(last.indexOf("Company") >= 0) {
+        familiar = true;
+        words[words.length-1] = "Co";
+      } else if(last.indexOf("Corporation") >= 0) {
+        familiar = true;
+        words[words.length-1] = "Corp";
+      } else if(last.indexOf("Inc") >= 0) {
+        familiar = true;
+        words[words.length-1] = "Inc";
+      }
+
+      if(familiar) {
+        var tstr = "";
+        for(var j=0; j<words.length-1; j++) {
+          var w = words[j].replace("-","+").replace(".","");
+          if(!(j==0 && w == "The")) tstr += w + "+";
+        }
+        tstr += words[words.length-1];
+
+        opn("https://www.sec.gov/cgi-bin/browse-edgar?company=" + tstr + "&owner=exclude&action=getcompany&type=10-k");
+      }
+
+      OFF=true;
+    }
+  });
+}
+
 // determine earnings ratio for stock in given year, e.g. 10% return is 1.1
 function earningFactor(symbol, year, title, i, callback) {
 
@@ -84,6 +140,7 @@ function earningFactor(symbol, year, title, i, callback) {
     return;
   }
 
+  // try yahoo first
   console.log('yahoo-api:', symbol, title, year);
   yahooFinance.historical({
       symbol: symbol,
@@ -95,34 +152,9 @@ function earningFactor(symbol, year, title, i, callback) {
       else if(OFF) return;
       else {
         if(quotes.length === 0) {
-console.log('%%%%%%%%%%%% Yahoo Missing: '+symbol+", "+title+", "+year+", "+i);
-          var familiar = false;
-          var words = title.split(" ");
-          if(words.length > 1) words[words.length-2] = words[words.length-2].replace(",","");
-          var last = words[words.length-1];
-          if(last.indexOf("Company") >= 0) {
-            familiar = true;
-            words[words.length-1] = "Co";
-          } else if(last.indexOf("Corporation") >= 0) {
-            familiar = true;
-            words[words.length-1] = "Corp";
-          } else if(last.indexOf("Inc") >= 0) {
-            familiar = true;
-            words[words.length-1] = "Inc";
-          }
-
-          if(familiar) {
-            var tstr = "";
-            for(var j=0; j<words.length-1; j++) {
-              var w = words[j].replace("-","+").replace(".","");
-              if(!(j==0 && w == "The")) tstr += w + "+";
-            }
-            tstr += words[words.length-1];
-
-            opn("https://www.sec.gov/cgi-bin/browse-edgar?company=" + tstr + "&owner=exclude&action=getcompany&type=10-k");
-          }
-
-          OFF=true;
+//console.log('%%%%%%%%%%%% Yahoo Missing: '+symbol+", "+title+", "+year+", "+i);
+          // use intrinio as fallback
+          intrinio(symbol, year, title, i, callback);
           return;
         }
         //assert(quotes.length > 0, '##### Yahoo Missing: '+symbol+", "+title+", "+year);
@@ -137,8 +169,6 @@ console.log('%%%%%%%%%%%% Yahoo Missing: '+symbol+", "+title+", "+year+", "+i);
 
 var portfolio = [];
 var salary = 60000;
-
-var year = 1997;
 
 var tmp = [];
 var complete = 0;
