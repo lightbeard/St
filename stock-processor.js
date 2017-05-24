@@ -75,15 +75,21 @@ var smap = {
 
 function intrinio(symbol, year, title, i, callback) {
 
-  var url = "http://api.intrinio.com/historical_data?identifier=" + symbol.toUpperCase() + "&item=adj_close_price&start_date=" + year + "-06-01&end_date=" + (year + 1) + "-07-01&frequency=quarterly";
+  var url = "https://api.intrinio.com/historical_data?identifier=" + symbol.toUpperCase() + "&amp;item=adj_close_price&start_date=" + year + "-06-01&amp;end_date=" + (year + 1) + "-07-01&amp;frequency=quarterly";
 
   console.log('intinio api:', url);
 
-  request.get('http://some.server.com/', function(error, response, body) {
-
-    assert(response && response.statusCode === 200);
+  request({
+    'url':'https://api.intrinio.com/historical_data?identifier=XRX&amp;item=adj_close_price&start_date=1997-06-01&amp;end_date=1998-07-01&amp;frequency=quarterly',
+    'auth':{
+      'user':'609049632e3b5c37054c4e2639fd9bc3',
+      'pass':'23b52233a64c03cb646ed1c8151a411f'
+    }
+  }, function (error, response, body) {
 
     const payload = JSON.parse(body);
+
+    console.log(payload);
 
     if(payload.data.length > 0) {
 
@@ -92,50 +98,55 @@ function intrinio(symbol, year, title, i, callback) {
 
       var y1price, y2price;
 
-      for(var qindex=0; qindex<paylaod.data.length; qindex++) {
+      for(var qindex=0; qindex<payload.data.length; qindex++) {
         var item = payload.data[qindex];
-        if(re1.test(item.value)) y1price = item.value;
-        if(re2.test(item.value)) y2price = item.value;
+        if(re1.test(item.date)) y1price = item.value;
+        if(re2.test(item.date)) y2price = item.value;
       }
 
       assert(y1price && y2price);
 
-      callback( Number(y2price) / Number(y1price) );
+      const ratio = Number(y2price) / Number(y1price);
+      if(!rdata[symbol]) rdata[symbol] = {};
+      rdata[symbol][year] = ratio;
+      fs.writeFileSync('ratio-data.json', rdata);
+      console.log('added to local cache:', symbol, year, ratio);
+      callback(ratio);
 
-  }).auth('609049632e3b5c37054c4e2639fd9bc3', '23b52233a64c03cb646ed1c8151a411f', false);
-
-
-
-  /*  } else {
-      console.log('%%%%%%%%%%%% Intrinio Missing: '+symbol+", "+title+", "+year+", "+i);
-      var familiar = false;
-      var words = title.split(" ");
-      if(words.length > 1) words[words.length-2] = words[words.length-2].replace(",","");
-      var last = words[words.length-1];
-      if(last.indexOf("Company") >= 0) {
-        familiar = true;
-        words[words.length-1] = "Co";
-      } else if(last.indexOf("Corporation") >= 0) {
-        familiar = true;
-        words[words.length-1] = "Corp";
-      } else if(last.indexOf("Inc") >= 0) {
-        familiar = true;
-        words[words.length-1] = "Inc";
-      }
-
-      if(familiar) {
-        var tstr = "";
-        for(var j=0; j<words.length-1; j++) {
-          var w = words[j].replace("-","+").replace(".","");
-          if(!(j==0 && w == "The")) tstr += w + "+";
+    } else {
+        console.log('%%%%%%%%%%%% Intrinio Missing: '+symbol+", "+title+", "+year+", "+i);
+        var familiar = false;
+        var words = title.split(" ");
+        if(words.length > 1) words[words.length-2] = words[words.length-2].replace(",","");
+        var last = words[words.length-1];
+        if(last.indexOf("Company") >= 0) {
+          familiar = true;
+          words[words.length-1] = "Co";
+        } else if(last.indexOf("Corporation") >= 0) {
+          familiar = true;
+          words[words.length-1] = "Corp";
+        } else if(last.indexOf("Inc") >= 0) {
+          familiar = true;
+          words[words.length-1] = "Inc";
         }
-        tstr += words[words.length-1];
 
-        opn("https://www.sec.gov/cgi-bin/browse-edgar?company=" + tstr + "&owner=exclude&action=getcompany&type=10-k");
+        if(familiar) {
+          var tstr = "";
+          for(var j=0; j<words.length-1; j++) {
+            var w = words[j].replace("-","+").replace(".","");
+            if(!(j==0 && w == "The")) tstr += w + "+";
+          }
+          tstr += words[words.length-1];
+
+          opn("https://www.sec.gov/cgi-bin/browse-edgar?company=" + tstr + "&owner=exclude&action=getcompany&type=10-k");
+        }
+
+        OFF=true;
       }
 
-      OFF=true;
-    } */
+  });
+
+
 
 }
 
@@ -174,6 +185,7 @@ function earningFactor(symbol, year, title, i, callback) {
         var ratio = quotes[quotes.length - 1].open / quotes[0].open;
         if(!rdata[symbol]) rdata[symbol] = {};
         rdata[symbol][year] = ratio;
+        fs.writeFileSync('ratio-data.json', rdata);
         console.log('added to local cache:', symbol, year, ratio);
         callback(ratio);
       }
@@ -211,26 +223,28 @@ var symbols = [];
 
 // create result set in symbols[]
 for(var i=0; i<tmp.length; i++) {
-  (function() {
-    // closure is used here so stock var isn't overwritten by loop
-    var stock = tmp[i];
-    var index = i;
-    if(stock.s == PRIVATE) {
-      // skip
-      total += Number(stock.r);
-    } else {
-      // stagger requests
-      setTimeout(function() {
-        earningFactor(stock.s, year, stock.t, index, function(factor) {
-            if(factor) symbols[Number(stock.r)-1] = {symbol:stock.s, factor:factor};
-            else symbols[Number(stock.r)-1] = {symbol:'DEFUNCT', factor:1.0}; // old?
-            total += Number(stock.r);
-//console.log(symbols.length);
-console.log('########## TOTAL:', total);
-          });
-      }, i * 10);
-    }
-  })();
+
+    (function() {
+      // closure is used here so stock var isn't overwritten by loop
+      var stock = tmp[i];
+      var index = i;
+      if(stock.s == PRIVATE) {
+        // skip
+        total += Number(stock.r);
+      } else {
+        // stagger requests
+        setTimeout(function() {
+          earningFactor(stock.s, year, stock.t, index, function(factor) {
+              if(factor) symbols[Number(stock.r)-1] = {symbol:stock.s, factor:factor};
+              else symbols[Number(stock.r)-1] = {symbol:'DEFUNCT', factor:1.0}; // old?
+              total += Number(stock.r);
+  //console.log(symbols.length);
+  console.log('########## TOTAL:', total);
+            });
+        }, i * 10);
+      }
+    })();
+
 }
 
 delete tmp;
