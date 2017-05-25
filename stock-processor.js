@@ -80,7 +80,7 @@ function intrinio(symbol, year, title, i, callback) {
   console.log('intinio api:', url);
 
   request({
-    'url':'https://api.intrinio.com/historical_data?identifier=XRX&amp;item=adj_close_price&start_date=1997-06-01&amp;end_date=1998-07-01&amp;frequency=quarterly',
+    'url':url,
     'auth':{
       'user':'609049632e3b5c37054c4e2639fd9bc3',
       'pass':'23b52233a64c03cb646ed1c8151a411f'
@@ -89,9 +89,9 @@ function intrinio(symbol, year, title, i, callback) {
 
     const payload = JSON.parse(body);
 
-    console.log(payload);
+    console.log(payload, title);
 
-    if(payload.data.length > 0) {
+    if(payload && payload.data && payload.data.length > 0) {
 
       const re1 = new RegExp( year + '-05|' + year + '-06|' + year + '-07' );
       const re2 = new RegExp( (year+1) + '-05|' + (year+1) + '-06|' + (year+1) + '-07' );
@@ -110,7 +110,7 @@ function intrinio(symbol, year, title, i, callback) {
       if(!rdata[symbol]) rdata[symbol] = {};
       rdata[symbol][year] = ratio;
       fs.writeFileSync('ratio-data.json', JSON.stringify(rdata));
-      console.log('added to local cache:', symbol, year, ratio);
+      console.log('intrinio added to local cache:', symbol, year, ratio);
       callback(ratio);
 
     } else {
@@ -186,7 +186,7 @@ function earningFactor(symbol, year, title, i, callback) {
         if(!rdata[symbol]) rdata[symbol] = {};
         rdata[symbol][year] = ratio;
         fs.writeFileSync('ratio-data.json', JSON.stringify(rdata));
-        console.log('added to local cache:', symbol, year, ratio);
+        console.log('yahoo added to local cache:', symbol, year, ratio);
         callback(ratio);
       }
     });
@@ -241,7 +241,7 @@ for(var i=0; i<tmp.length; i++) {
   //console.log(symbols.length);
   console.log('########## TOTAL:', total);
             });
-        }, i * 10);
+        }, i * 200);
       }
     })();
 
