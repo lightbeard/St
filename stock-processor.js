@@ -239,9 +239,9 @@ for(var i=0; i<tmp.length; i++) {
               else symbols[Number(stock.r)-1] = {symbol:'DEFUNCT', factor:1.0}; // old?
               total += Number(stock.r);
   //console.log(symbols.length);
-  console.log('########## TOTAL:', total);
+  console.log('########## INDEX:', index);
             });
-        }, i * 200);
+        }, i * 150);
       }
     })();
 
