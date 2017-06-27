@@ -70,7 +70,9 @@ var smap = {
   'Lutheran Brotherhood':PRIVATE,
   'Fannie Mae':PRIVATE,
   'NYNEX Corporation':PRIVATE,
-  'Federal Home Loan Mortgage Corp.':PRIVATE
+  'Federal Home Loan Mortgage Corp.':PRIVATE,
+  'FHP International Corporation':PRIVATE,
+  'SAFECO Corporation':PRIVATE
 };
 
 function intrinio(symbol, year, title, i, callback) {
@@ -86,6 +88,11 @@ function intrinio(symbol, year, title, i, callback) {
       'pass':'23b52233a64c03cb646ed1c8151a411f'
     }
   }, function (error, response, body) {
+
+    if(error) {
+      console.log("******** don't forget to use mtech network *********");
+      throw new Error(error);
+    }
 
     const payload = JSON.parse(body);
 
@@ -222,12 +229,12 @@ var total = 0;
 var symbols = [];
 
 // create result set in symbols[]
-for(var i=0; i<tmp.length; i++) {
+const start = 340;
+for(var i=start; i<tmp.length; i++) {
 
     (function() {
       // closure is used here so stock var isn't overwritten by loop
-      var stock = tmp[i];
-      var index = i;
+      var stock = tmp[i];      var index = i;
       if(stock.s == PRIVATE) {
         // skip
         total += Number(stock.r);
@@ -241,7 +248,7 @@ for(var i=0; i<tmp.length; i++) {
   //console.log(symbols.length);
   console.log('########## INDEX:', index);
             });
-        }, i * 150);
+        }, (i - start) * 200);
       }
     })();
 
@@ -249,4 +256,4 @@ for(var i=0; i<tmp.length; i++) {
 
 delete tmp;
 
-while(total < 99958738) require('deasync').runLoopOnce();
+while(total < 9995873899) require('deasync').runLoopOnce();
