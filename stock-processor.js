@@ -8,6 +8,7 @@ const request = require('request');
 const yahooFinance = require('yahoo-finance');
 const assert = require('assert');
 
+const START_AT = 370
 const year = 1997;
 
 const PRIVATE = '_PRIVATE';
@@ -72,7 +73,10 @@ var smap = {
   'NYNEX Corporation':PRIVATE,
   'Federal Home Loan Mortgage Corp.':PRIVATE,
   'FHP International Corporation':PRIVATE,
-  'SAFECO Corporation':PRIVATE
+  'SAFECO Corporation':PRIVATE,
+  'LG&E Energy Corporation': PRIVATE,
+  'Great Western Financial Corporation': PRIVATE,
+  'Foundation Health Corporation': PRIVATE
 };
 
 function intrinio(symbol, year, title, i, callback) {
@@ -229,7 +233,6 @@ var total = 0;
 var symbols = [];
 
 // create result set in symbols[]
-const start = 340;
 for(var i=start; i<tmp.length; i++) {
 
     (function() {
@@ -248,7 +251,7 @@ for(var i=start; i<tmp.length; i++) {
   //console.log(symbols.length);
   console.log('########## INDEX:', index);
             });
-        }, (i - start) * 200);
+        }, (i - START_AT) * 200);
       }
     })();
 
