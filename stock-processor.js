@@ -8,8 +8,8 @@ const request = require('request');
 const yahooFinance = require('yahoo-finance');
 const assert = require('assert');
 
-const START_AT = 370
-const year = 1997;
+const START_AT = 0;
+const year = 1998;
 
 const PRIVATE = '_PRIVATE';
 
@@ -17,6 +17,9 @@ var rdata = JSON.parse(fs.readFileSync('ratio-data.json'));
 var OFF = false;
 
 var smap = {
+  'The BFGoodrich Company':PRIVATE,
+  'Pacific Enterprises':PRIVATE,
+  'El Paso Natural Gas Company':PRIVATE,
   'State Farm Group':PRIVATE,
   'Metropolitan Life Insurance Co.':'MET',
   'United Parcel Service of America, Inc.':'UPS',
@@ -76,7 +79,9 @@ var smap = {
   'SAFECO Corporation':PRIVATE,
   'LG&E Energy Corporation': PRIVATE,
   'Great Western Financial Corporation': PRIVATE,
-  'Foundation Health Corporation': PRIVATE
+  'Foundation Health Corporation': PRIVATE,
+  'Jefferson Smurfit Corporation': PRIVATE,
+  'Long Island Lighting Company' : PRIVATE
 };
 
 function intrinio(symbol, year, title, i, callback) {
@@ -233,7 +238,7 @@ var total = 0;
 var symbols = [];
 
 // create result set in symbols[]
-for(var i=start; i<tmp.length; i++) {
+for(var i=START_AT; i<tmp.length; i++) {
 
     (function() {
       // closure is used here so stock var isn't overwritten by loop
