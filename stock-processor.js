@@ -17,6 +17,15 @@ var rdata = JSON.parse(fs.readFileSync('ratio-data.json'));
 var OFF = false;
 
 var smap = {
+  'GenAmerica Corporation':PRIVATE,
+  'Rykoff-Sexton, Inc.':'RYK',
+  'TruServ Corporation':PRIVATE,
+  'Borden, Inc. and Affiliates':'brd?',
+  'American Family Mutual Insurance Company':PRIVATE,
+  'Premcor':'PCO',
+  'Pacific Life Insurance Company':PRIVATE,
+  'Barnett Banks, Inc.':PRIVATE,
+  'Teachers Insurance and Annuity Association College Retiremen':PRIVATE,
   'The BFGoodrich Company':PRIVATE,
   'Pacific Enterprises':PRIVATE,
   'El Paso Natural Gas Company':PRIVATE,
@@ -223,7 +232,7 @@ for(var i=1; i<=25; i++) {
     var sym = smap[stocks[j].title] ? smap[stocks[j].title] : stocks[j].ticker_text;
     if(!sym) {
       // symbol map miss
-      console.log(stocks[j]);
+      console.log(stocks[j], i);
       assert.fail(null, 'stock-symbol');
     }
 
