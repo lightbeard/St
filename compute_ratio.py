@@ -4,7 +4,7 @@ import sys
 import json
 from decimal import Decimal
 
-JSON_YEAR = '1997'
+JSON_YEAR = '1998'
 
 def process_args(c):
     if len(sys.argv) > c+1 and "/" in sys.argv[c+1]:
