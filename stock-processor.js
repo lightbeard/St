@@ -9,7 +9,7 @@ const yahooFinance = require('yahoo-finance');
 const assert = require('assert');
 
 const START_AT = 0;
-const year = 1998;
+const year = 2000;
 
 const PRIVATE = '_PRIVATE';
 
@@ -17,6 +17,10 @@ var rdata = JSON.parse(fs.readFileSync('ratio-data.json'));
 var OFF = false;
 
 var smap = {
+  'Allegiance Corporation':PRIVATE,
+  'Tele-Communications, Inc.':PRIVATE,
+  'Nebco Evans Holding Company':PRIVATE,
+  'Principal Financial Group':'PFG',
   'GenAmerica Corporation':PRIVATE,
   'Rykoff-Sexton, Inc.':'RYK',
   'TruServ Corporation':PRIVATE,
@@ -129,17 +133,25 @@ function intrinio(symbol, year, title, i, callback) {
         if(re2.test(item.date)) y2price = item.value;
       }
 
-      assert(y1price && y2price);
-
-      const ratio = Number(y2price) / Number(y1price);
-      if(!rdata[symbol]) rdata[symbol] = {};
-      rdata[symbol][year] = ratio;
-      fs.writeFileSync('ratio-data.json', JSON.stringify(rdata));
-      console.log('intrinio added to local cache:', symbol, year, ratio);
-      callback(ratio);
+      if(y1price && y2price) {
+          const ratio = Number(y2price) / Number(y1price);
+          if(!rdata[symbol]) rdata[symbol] = {};
+          rdata[symbol][year] = ratio;
+          fs.writeFileSync('ratio-data.json', JSON.stringify(rdata));
+          console.log('intrinio added to local cache:', symbol, year, ratio);
+          callback(ratio);
+      } else {
+        callback(-1)
+      }
 
     } else {
         console.log('%%%%%%%%%%%% Intrinio Missing: '+symbol+", "+title+", "+year+", "+i);
+        if(payload.errors && payload.errors[0] && payload.errors[0].message.indexOf("max API calls per day")) {
+          throw new Error(payload.errors[0].human)
+        }
+        callback(-1);
+        return;
+        /* old */
         var familiar = false;
         var words = title.split(" ");
         if(words.length > 1) words[words.length-2] = words[words.length-2].replace(",","");
@@ -230,14 +242,10 @@ for(var i=1; i<=25; i++) {
   for(var j=0; j<stocks.length; j++) {
     var rank = Number(stocks[j].rank);
     var sym = smap[stocks[j].title] ? smap[stocks[j].title] : stocks[j].ticker_text;
-    if(!sym) {
-      // symbol map miss
-      console.log(stocks[j], i);
-      assert.fail(null, 'stock-symbol');
+    if(sym) {
+      tmp.push({s:sym, r:rank, t:stocks[j].title});
+      complete += Number(rank);
     }
-
-    tmp.push({s:sym, r:rank, t:stocks[j].title});
-    complete += Number(rank);
   }
 }
 
