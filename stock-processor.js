@@ -9,7 +9,7 @@ const yahooFinance = require('yahoo-finance');
 const assert = require('assert');
 
 const START_AT = 0;
-const year = 2000;
+const year = 2002;
 
 const PRIVATE = '_PRIVATE';
 
@@ -141,12 +141,12 @@ function intrinio(symbol, year, title, i, callback) {
           console.log('intrinio added to local cache:', symbol, year, ratio);
           callback(ratio);
       } else {
-        callback(-1)
+        callback(-1);
       }
 
     } else {
         console.log('%%%%%%%%%%%% Intrinio Missing: '+symbol+", "+title+", "+year+", "+i);
-        if(payload.errors && payload.errors[0] && payload.errors[0].message.indexOf("max API calls per day")) {
+        if(payload.errors && payload.errors[0] && payload.errors[0].message.indexOf("max API calls per day") >= 0) {
           throw new Error(payload.errors[0].human)
         }
         callback(-1);
@@ -267,8 +267,8 @@ for(var i=START_AT; i<tmp.length; i++) {
         // stagger requests
         setTimeout(function() {
           earningFactor(stock.s, year, stock.t, index, function(factor) {
-              if(factor) symbols[Number(stock.r)-1] = {symbol:stock.s, factor:factor};
-              else symbols[Number(stock.r)-1] = {symbol:'DEFUNCT', factor:1.0}; // old?
+              symbols[Number(stock.r)-1] = {symbol:stock.s, factor:factor};
+              //else symbols[Number(stock.r)-1] = {symbol:'DEFUNCT', factor:1.0}; // old?
               total += Number(stock.r);
   //console.log(symbols.length);
   console.log('########## INDEX:', index);
