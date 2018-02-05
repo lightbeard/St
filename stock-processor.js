@@ -9,7 +9,7 @@ const yahooFinance = require('yahoo-finance');
 const assert = require('assert');
 
 const START_AT = 0;
-const year = 2002;
+const year = 2003;
 
 const PRIVATE = '_PRIVATE';
 
