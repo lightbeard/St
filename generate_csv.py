@@ -4,7 +4,7 @@ import sys
 import json
 from decimal import Decimal
 
-MIN_DATA_SET = 3
+MIN_DATA_SET = 5
 
 def fortune_500_list(year):
     result = [None for x in range(1000)]
@@ -36,8 +36,10 @@ with open("ratio-data.json") as json_data:
 
 for rank in range(1, 501):
     cnt = 0
-    best = 0
-    worst = 99.0
+    best1 = 0
+    best2 = 0
+    worst1 = 99.0
+    worst2 = 99.0
     ROI = 1.0
     for year in range(1996, 2017):
         if years[str(year)][rank] is not None:
@@ -49,13 +51,19 @@ for rank in range(1, 501):
                         #print('symbol:'+symbol+' ratio:'+str(ratio))
                         cnt = cnt + 1
                         ROI = ROI * ratio
-                        if ratio > best:
-                            best = ratio
-                        if ratio < worst:
-                            worst = ratio
+                        if ratio > best1:
+                            best2 = best1
+                            best1 = ratio
+                        elif ratio > best2:
+                            best2 = ratio
+                            
+                        if ratio < worst1:
+                            worst2 = worst1
+                            worst1 = ratio
+                        elif ratio < worst2:
+                            worst2 = ratio
     if cnt >= MIN_DATA_SET:
-        ROI = ROI / best
-        ROI = ROI / worst
+        ROI = ROI / best1 / best2 / worst1 / worst2
         csv = csv + str(ROI) + ','
     else:
         csv = csv + ','
